@@ -1,0 +1,12 @@
+# Local-only reference (internal IDs — never commit)
+project-reference.local.md
+*.local.md
+
+# Secrets — MCP config holds the N8N_API_KEY
+.mcp.json
+
+# Local tooling config
+.claude/
+
+# OS
+.DS_Store
