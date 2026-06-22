@@ -86,11 +86,25 @@ to fetch only what is needed. Initially fetches everything — cost is trivial.)
 {
   "accounts_pen": [ { "name", "current_balance", "type" } ],
   "accounts_usd": [ { "name", "current_balance", "type" } ],
-  "expenses":     [ { "name", "amount", "categoryId", "date", "lima_date": "2026-06-07" } ],
-  "incomes":      [ { "name", "amount", "categoryId", "date", "lima_date" } ],
-  "budgets":      [ { "name", "category_id", "budget_amount", "period_start", "period_end", ... } ]
+  "expenses":     [ { "name", "dest", "amount", "categoryId", "currency", "date", "lima_date": "2026-06-07" } ],
+  "incomes":      [ { "name", "dest", "amount", "categoryId", "currency", "date", "lima_date" } ],
+  "budgets":      [ { "name", "category_id", "currency", "budget_amount", "period_start", "period_end", ... } ],
+  "account_logs": [ { "account_name", "account_page_id", "close_date", "balance", "currency", "type" } ]
 }
 ```
+
+> **Transfers are INCLUDED** (with `dest` = the title mention's plain_text). This layer is
+> agnostic and never drops or interprets them; each orchestrator decides (Daily excludes
+> transfers, Monthly classifies them by `dest`). Every tx row carries `currency`.
+
+> ⚠️ **`current_balance` is TODAY's balance, not a month close.** The Accounts DB's
+> `Current Balance` is a Notion formula recomputed live on every expense/income. It is
+> only valid for "current" reports (Daily). For any **past-month** balance (Monthly net
+> worth, prev-month comparison) the snapshot lives in the **Account Logs** DB (one
+> month-close row per account per month, USD accounts only). It is exposed separately as
+> `account_logs` (`close_date` + `balance`, with `currency`/`type` cross-referenced from
+> Accounts) — do NOT use `current_balance` for a historical month. ✅ *Wired in
+> 2026-06-18; validated against May 2026 (net worth `$30,248` reproduced exactly).*
 
 **Date-correctness logic (encapsulated inside):**
 
