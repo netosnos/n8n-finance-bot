@@ -13,13 +13,14 @@ workflow.
 
 **Placeholders:** square brackets `[...]` in the layout below mark a value to fill in.
 Output the value ONLY — never the brackets themselves (write `↓`, not `[↓]`; write `🔴`,
-not `[🔴]`). For a `[↑/↓]` marker emit exactly one arrow; for `[🟢/🟡/🔴]` one emoji.
+not `[🔴]`). For a `[↑/↓]` marker emit exactly one arrow. `[month_label]` and
+`[monthly_score_emoji]` mean: print that pre-computed field's value verbatim.
 
 ## Layout
 
 ```text
-📊 *Monthly Report — [Month YYYY]*
-Overall: [🟢/🟡/🔴] *XX/100 ([grade])*
+📊 *Monthly Report — [month_label]*
+Overall: [monthly_score_emoji] *XX/100 ([grade])*
 
 • Budget: *XX/100* [↑/↓]
 • Savings: *XX%* [label]

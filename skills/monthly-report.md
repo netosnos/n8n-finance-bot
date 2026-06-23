@@ -12,7 +12,11 @@ assessment.
   `lever`). Your job is to **present and interpret**, never to recompute. Do not invent or
   re-derive values; format the ones you are given.
 - Apply the **thresholds and labels** in each section to turn numbers into words (e.g. a
-  savings-rate band, a score color). These are the only judgment calls.
+  savings-rate band). These are the only judgment calls.
+- A few display values are **pre-computed for you — use them verbatim, never re-derive**:
+  `month_label` (the month name to print, e.g. "May 2026") and the score color emojis
+  `monthly_score_emoji` / `emergency_score_emoji` / `investment_score_emoji`. Do not pick the
+  color emoji yourself from thresholds; use the field.
 - The exact output shape (Notion blocks, Telegram layout) lives in the `templates/`
   files appended after this skill. This file is the *what* and *why*; the template is the *how*.
 
@@ -29,6 +33,7 @@ values, for month-over-month direction.
 ```json
 {
   "report_month": "2026-05",
+  "month_label": "May 2026",
   "month_close": "2026-05-31",
   "exchange_rate": 3.35,
   "current_age": 26,
@@ -62,7 +67,8 @@ values, for month-over-month direction.
   "projection_gap_usd": -245647.47, "required_monthly_contribution_usd": 0.00, "investment_score": 141,
 
   "score_budget": 84.8, "score_ahorro": 100, "score_patrimonio": 100, "score_emergencia": 38, "score_inversion": 100,
-  "score_mensual": 83.8, "grade": "B", "lever": "Emergency"
+  "score_mensual": 83.8, "grade": "B", "lever": "Emergency",
+  "monthly_score_emoji": "🟢", "emergency_score_emoji": "🔴", "investment_score_emoji": "🟢"
 }
 ```
 

@@ -26,8 +26,11 @@ not `[🔴]`; write `B`, not `[B]`). For a `[↑/↓/=]` marker emit exactly ONE
 
 ## Layout
 
+> In the layout, `[month_label]` and the `[*_score_emoji]` markers mean: print the value of
+> that pre-computed field verbatim (do not reformat the month or re-derive the emoji).
+
 ```text
-Monthly financial report for [Month YYYY]. Overall score: **XX/100 ([grade])**.
+Monthly financial report for [month_label]. Overall score: **XX/100 ([grade])**.
 
 # Budget Performance
 ---
@@ -67,7 +70,7 @@ Net Worth: `🇺🇸 XX.XX USD` — [grew/shrank] `🇺🇸 ZZ.ZZ USD` (W%) vs l
 
 # Emergency Fund
 ---
-Score: [🟢/🟡/🔴] **XX/100** ([status])
+Score: [emergency_score_emoji] **XX/100** ([status])
 • Covered: X.X months (target: N)
 • Monthly expense base: `🇺🇸 XX.XX USD`
 • Gap: `🇺🇸 YY.YY USD` (Z months)
@@ -75,7 +78,7 @@ Score: [🟢/🟡/🔴] **XX/100** ([status])
 
 # Investments
 ---
-Score: [🟢/🟡/🔴] **XX/100** ([status])
+Score: [investment_score_emoji] **XX/100** ([status])
 • Balance: `🇺🇸 XX.XX USD`
 • Contribution: `🇺🇸 XX.XX USD` (ZZ% of `🇺🇸 300.00 USD` ideal)
 • Real return: XX% annualized vs 7% expected ([+/−]W% [✅/⚠️])
@@ -84,7 +87,7 @@ Score: [🟢/🟡/🔴] **XX/100** ([status])
 
 # Month Balance
 ---
-Overall: [🟢/🟡/🔴] **XX/100 ([grade])**
+Overall: [monthly_score_emoji] **XX/100 ([grade])**
 ## What went well
 • [Section] (XX/100) — [context]
 • [Section] (XX/100) — [context]
