@@ -18,6 +18,12 @@ amounts: `🇵🇪 XX.XX PEN` or `🇺🇸 XX.XX USD`. Use **bold** for key figu
 ↑/↓/= for month-over-month direction. Score color emoji (only for scores):
 🟢 ≥ 75, 🟡 50–74, 🔴 < 50.
 
+**Placeholders:** square brackets `[...]` in the layout below mark a value to fill in.
+Output the value ONLY — never the brackets themselves (write `↓`, not `[↓]`; write `🔴`,
+not `[🔴]`; write `B`, not `[B]`). For a `[↑/↓/=]` marker emit exactly ONE symbol:
+`↑` if the metric improved vs last month, `↓` if it worsened, `=` if unchanged. For a
+`[🟢/🟡/🔴]` marker emit exactly one emoji per the score thresholds.
+
 ## Layout
 
 ```text

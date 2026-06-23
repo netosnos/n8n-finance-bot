@@ -11,6 +11,10 @@ Gemini returns a JSON object with keys `"notion"` (full report) and `"telegram"`
 (this short message). The "View full report" link is appended automatically by the
 workflow.
 
+**Placeholders:** square brackets `[...]` in the layout below mark a value to fill in.
+Output the value ONLY — never the brackets themselves (write `↓`, not `[↓]`; write `🔴`,
+not `[🔴]`). For a `[↑/↓]` marker emit exactly one arrow; for `[🟢/🟡/🔴]` one emoji.
+
 ## Layout
 
 ```text

@@ -86,8 +86,8 @@ to fetch only what is needed. Initially fetches everything — cost is trivial.)
 {
   "accounts_pen": [ { "name", "current_balance", "type" } ],
   "accounts_usd": [ { "name", "current_balance", "type" } ],
-  "expenses":     [ { "name", "dest", "amount", "categoryId", "currency", "date", "lima_date": "2026-06-07" } ],
-  "incomes":      [ { "name", "dest", "amount", "categoryId", "currency", "date", "lima_date" } ],
+  "expenses":     [ { "name", "dest", "amount", "categoryId", "accountId", "currency", "date", "lima_date": "2026-06-07" } ],
+  "incomes":      [ { "name", "dest", "amount", "categoryId", "accountId", "currency", "date", "lima_date" } ],
   "budgets":      [ { "name", "category_id", "currency", "budget_amount", "period_start", "period_end", ... } ],
   "account_logs": [ { "account_name", "account_page_id", "close_date", "balance", "currency", "type" } ]
 }

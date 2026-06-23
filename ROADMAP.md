@@ -56,12 +56,18 @@ Build plan for the modular architecture. Design lives in
 > input structure + config + S1–S6 rules; the two output-format blocks became
 > `templates/monthly-report-{notion,telegram}.md`. System prompt = skill + both templates.
 
-## Phase 4 — Monthly Report orchestrator (v2)
-- [ ] **Push skill + templates first** (raw URLs must resolve).
-- [ ] Set Dates (target + prev month, Lima) → Get Financial Data ×2 (target + prev) → Build Data (Monthly) → AI Agent (skill + both templates from GitHub) → Render Notion Page + Send Telegram.
-- [ ] Reconcile Build Data with the new `Get Financial Data` output shape (currency/lima_date on tx, `account_logs`, range-overlap budgets).
-- [ ] Resolve the Telegram generation decision (architecture §3.3).
-- [ ] Validate end-to-end against May 2026 (composite ≈ 83–84 B; net worth $30,248).
+## Phase 4 — Monthly Report orchestrator (v2) ✅
+- [x] **Push skill + templates first** (raw URLs resolve, HTTP 200).
+- [x] Set Dates (target + prev month, Lima) → Get Financial Data ×2 (target + prev) → Build Data (Monthly) → Gemini (skill + both templates from GitHub) → Render Notion Page + Send Telegram.
+- [x] Reconcile Build Data with the new `Get Financial Data` output shape (currency/lima_date on tx, `account_logs`, range-overlap budgets).
+- [x] Resolve §3.3 — kept v1's approach: ONE Gemini call returns `{notion, telegram}`.
+- [x] Validate end-to-end against May 2026 — composite **83.8 B**, net worth **$30,248.43**, all 6 sections + nested `↳` patterns rendered, Telegram sent. Page properties all correct. Test page trashed.
+
+> Built as workflow **Monthly Report v2** (16 nodes, INACTIVE pending cutover). Sub-workflows
+> `Get Financial Data` / `Render Notion Page` / `Send Telegram` are ACTIVE (so the parent can
+> reference them). Their triggers use `passthrough` so the orchestrator feeds items directly
+> (no resourceMapper). Minor polish noted: Gemini renders the template's `[↑/↓/=]` literally
+> with brackets — cosmetic, could refine the template wording later.
 
 ## Phase 5 — Add Expense / Add Income / Router
 - [ ] Modularize the rest reusing the built blocks.
