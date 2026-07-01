@@ -72,6 +72,12 @@ Build plan for the modular architecture. Design lives in
 ## Phase 5 — Add Expense / Add Income / Router
 - [ ] Modularize the rest reusing the built blocks.
 
-## Phase 6 — Cutover
-- [ ] Activate the Monthly v2, deactivate the monolithic Monthly v1.
-- [ ] (Daily v1 left untouched unless the user later decides on a Daily v2.)
+## Phase 6 — Cutover ✅
+- [x] Activate the Monthly v2, deactivate the monolithic Monthly v1 (done 2026-06-30).
+- [x] (Daily v1 left untouched — Daily dropped from v2.)
+
+> **Monthly v2 (`N9AIhMG9agY3zPQP`) is LIVE.** Cron `0 5 1 * *` (1st, **5am Lima** — moved
+> from v1's 8am at user request). v1 is now inactive. First production run: 1 Jul → June
+> report vs May. Its sub-workflows
+> (Get Financial Data / Render Notion Page / Send Telegram) are active. First run depends on
+> June-close Account Logs snapshots existing (same dependency v1 had).
