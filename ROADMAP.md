@@ -48,7 +48,7 @@ Build plan for the modular architecture. Design lives in
 ## Phase 3 — Skills in GitHub ✅ (monthly only)
 - [x] Write `skills/monthly-report.md` (rules/calculations S1–S6 only).
 - [x] Extract `templates/monthly-report-notion.md` + `templates/monthly-report-telegram.md` from the Notion skill page.
-- [ ] Commit + push (so the AI Agent can fetch them from raw GitHub URLs — prerequisite for Phase 4).
+- [x] Commit + push (AI Agent fetches them from raw GitHub URLs — done, verified HTTP 200 in Phase 4).
 - ~~Daily skill/template~~ — dropped from v2 (see scope decision).
 
 > **Monthly skill + templates DONE.** All three ported faithfully from the Notion
