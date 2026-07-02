@@ -61,7 +61,7 @@ values, for month-over-month direction.
 
   "investment_accounts": [{ "name": "Mutual Fund Primary", "balance": 8928.00 }],
   "investment_balance_usd": 23050.99, "prev_investment_balance_usd": 22650.99, "investment_contribution_usd": 400.00,
-  "planned_contribution_min_usd": 200.00, "planned_contribution_ideal_usd": 300.00, "contribution_compliance_pct": 133.3,
+  "planned_contribution_min_usd": 600.00, "planned_contribution_ideal_usd": 800.00, "contribution_compliance_pct": 50.0,
   "real_return_month_pct": 0.0, "real_return_annualized_pct": 0.0, "expected_return_pct": 7, "return_delta_pct": -7.0,
   "retirement_age": 60, "years_to_retirement": 34, "projection_usd": 845647.47, "retirement_goal_usd": 600000.00,
   "projection_gap_usd": -245647.47, "required_monthly_contribution_usd": 0.00, "investment_score": 141,
@@ -88,7 +88,7 @@ Notes on a few fields:
 - Retirement Target Age: 60 — edit to update.
 - Retirement Monthly Expense: $2,000 USD. Retirement Goal: $600,000 USD.
 - Expected Annual Return: 7% — edit to update.
-- Planned Monthly Investment Contribution: minimum $200, ideal $300 USD.
+- Planned Monthly Investment Contribution: minimum $600, ideal $800 USD.
 - Emergency Fund Target: 8 months — edit this bullet to update.
 
 ## Section 1 — Budget Performance
@@ -142,7 +142,7 @@ in months and USD; and the month-over-month direction (closer to / further from 
 **Uses:** `investment_balance_usd`, `investment_contribution_usd`, `planned_contribution_ideal_usd`,
 `contribution_compliance_pct`; `real_return_annualized_pct`, `expected_return_pct`, `return_delta_pct`;
 `projection_usd`, `retirement_goal_usd`, `required_monthly_contribution_usd`; `investment_score`.
-**Contribution status:** ≥ ideal ($300) on target · ≥ min ($200) minimum met · < min below minimum.
+**Contribution status:** ≥ ideal ($800) on target · ≥ min ($600) minimum met · < min below minimum.
 **Return:** compare annualized real return to expected (7%); `return_delta_pct` positive → above ✅, negative → below ⚠️.
 **Score labels:** 100+ On track or ahead · 75–99 Almost on track · 50–74 Need to increase contribution · <50 Significant gap.
 **Present:** balance; this month's contribution with compliance %; real vs expected return with the delta;
