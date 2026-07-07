@@ -131,35 +131,42 @@ asks to confirm. One adaptive flow with a smart branch.
 Read a bank email → output a structured expense `{merchant_raw, amount, currency, date,
 time, card_last4}`. No Notion writes here.
 
-**Blockers — data the user must provide:**
-- [ ] **Card→account map:** confirm `*4008` = BBVA **PEN**; is there a separate USD card?
-      (All 130 sampled consumptions were `*4008` / PEN.)
-- [ ] **Interbank sample email** to write its parser + enumerate its email types.
+**Blockers — RESOLVED 2026-07-07** (card→account map + Interbank in `project-reference.local.md`):
+- [x] **Card→account map** (PEN only): BBVA `*4008` & `*1218` → **Variable Expenses**; BBVA
+      **PLIN transfers + QR payments** also → Variable Expenses; Interbank Amex `*087`
+      (`servicioalcliente@netinterbank.com.pe`) → **Fixed Expenses**.
+- [x] **Interbank** sender + card + account known; **email sample still pending** to write
+      its parser (build it once a real consumption email is captured).
 
-**Build steps:**
-- [ ] Filter Gmail to **card-consumption emails only** — `from:procesos@bbva.com.pe` alone
-      is NOT enough (see finding below). Match subject `Has realizado un consumo con tu
-      tarjeta BBVA`.
+**Build steps (BBVA card consumption first, then the rest):**
+- [ ] Filter Gmail to the wanted email types by **subject** — `from:procesos@bbva.com.pe`
+      alone is NOT enough (16+ types, see finding). Start with `Has realizado un consumo con
+      tu tarjeta BBVA`.
 - [ ] Parse BBVA consumption fields from the body (`Comercio / Monto / Moneda / Fecha /
       Hora / *NNNN`). Format is regular across samples.
 - [ ] Create the **Merchant Map** Notion DB (raw bank string → friendly name). Needed
       because BBVA truncates the merchant to ~18 chars ("BOBOCHA OPEN PLAZ").
-- [ ] Decide where the card→account map lives (leaning: Notion config, editable without
-      touching n8n — TBD vs code constant).
+- [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
+      code constant); leaning Notion so it's editable without touching n8n.
 - [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
-- [ ] Write the Interbank parser (once a sample is captured).
+- [ ] **Add BBVA PLIN + QR-payment parsers** (user wants these logged → Variable Expenses).
+      ⚠️ Nuance: some PLINs are to himself (self-transfer, e.g. "a Ernesto A Angulo J") vs to
+      others — decide handling (category is chosen in Telegram/Phase 8, so a self-transfer
+      would just get the `Transfer` category; confirm before building this parser).
+- [ ] Write the Interbank parser (once a sample email is captured).
 
-> **FINDING (2026-07-07) — BBVA sends 16+ email types, only 1 is a card consumption.**
-> Surveyed 300 emails (7 May–7 Jul) from `procesos@bbva.com.pe`: 130 "Has realizado un
-> consumo con tu tarjeta BBVA" (the one we want), plus Transf. Interbancaria (46), PLIN
-> (37+19 QR), Pago Tarjetas propias (21), T-Cambio (14), pago a comercios con QR (7),
-> transf. ctas propias/terceros, Apartados, estados de cuenta, etc. **⇒ MUST filter by
-> subject, not just sender**, or transfers/exchanges would be logged as expenses.
+> **SCOPE (updated 2026-07-07):** in scope for BBVA = card consumption **+ PLIN transfers
+> + QR payments** (all → Variable Expenses, per user). USD is **out of scope for now** —
+> **extend to USD once the whole PEN flow works** (planned follow-up).
 >
-> **Deferred to a later sub-phase (documented, out of scope for now):**
-> - **"pago a comercios con QR"** (7) — a real expense but different format; parse later.
-> - **"La compra… ha sido anulada"** — a reversal; if the expense was already added, it
->   should be reverted. For now just notify, don't auto-delete.
+> **FINDING (2026-07-07) — BBVA sends 16+ email types.** Surveyed 300 emails (7 May–7 Jul)
+> from `procesos@bbva.com.pe`: 130 "Has realizado un consumo con tu tarjeta BBVA", Transf.
+> Interbancaria (46), PLIN (37 + 19 QR), Pago Tarjetas propias (21), T-Cambio (14), pago a
+> comercios con QR (7), transf. ctas propias/terceros, Apartados, estados de cuenta, etc.
+> **⇒ MUST filter by subject, not just sender.** Build parsers per wanted type.
+>
+> **Still deferred:** **"La compra… ha sido anulada"** — a reversal; if the expense was
+> already added, it should be reverted. For now just notify, don't auto-delete.
 >
 > **Gotcha:** the Gmail OAuth token (`Gmail account`, `4rFJWwULha1qyy86`) expires/revokes
 > and needs periodic manual **Reconnect** in n8n (hit this 2026-07-07). Redirect URI must be
