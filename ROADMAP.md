@@ -69,11 +69,22 @@ Build plan for the modular architecture. Design lives in
 > (no resourceMapper). Minor polish noted: Gemini renders the template's `[↑/↓/=]` literally
 > with brackets — cosmetic, could refine the template wording later.
 
-## Phase 5 — Add Expense / Add Income / Router ⏸️ (deferred)
-- [ ] Modularize the rest reusing the built blocks.
+## Phase 5 — Modularize Add Expense / Add Income / Router 🔨
 
-> Deferred in favor of Phase 7 (Gmail Expense Ingestion), which the user prioritized.
-> Still valid work; revisit after the ingestion feature lands.
+Modularize the rest of the monolith into reusable sub-workflows, same role as
+`Get Financial Data` / `Send Telegram` — build once, reuse.
+
+- [ ] **Add Expense** sub-workflow: given a complete expense (merchant/amount/currency/
+  date/account/category) → create the Notion Expense; return `{page_id, url}`. Validate
+  in isolation.
+- [ ] **Add Income** sub-workflow: analogous, for incomes.
+- [ ] **Router** modularized to dispatch to the Add Expense / Add Income blocks.
+
+> **Add Expense doubles as the shared block for the Gmail ingestion feature** — Phase 8's
+> confirm button calls it, and the manual bot (Router → Add Expense) calls it too. So build
+> **Add Expense first** within this phase; it's a dependency of Phase 8. (Build order ≠
+> runtime order: at runtime the write fires last, but the button needs the block to exist.)
+> Add Income and Router aren't needed by the ingestion feature but stay in Phase 5's scope.
 
 ## Phase 6 — Cutover ✅
 - [x] Activate the Monthly v2, deactivate the monolithic Monthly v1 (done 2026-06-30).
@@ -85,45 +96,83 @@ Build plan for the modular architecture. Design lives in
 > (Get Financial Data / Render Notion Page / Send Telegram) are active. First run depends on
 > June-close Account Logs snapshots existing (same dependency v1 had).
 
-## Phase 7 — Gmail Expense Ingestion 🔨 (in progress, resumed 2026-07-06)
+## Gmail Expense Ingestion — the big picture (Phases 5, 7, 8)
 
-Auto-detect bank notification emails (BBVA / Interbank), extract the expense, log it to
-Notion, and ask the user for the **category** via Telegram inline buttons — a bot that
-**asks and learns** over time. "Flow C": save automatically + notify with an interactive
-category. Split in two sub-phases.
+Auto-detect bank notification emails, identify the expense, and — **only after the user
+confirms via Telegram** — add it to Notion. Split into three pillars, built in this order:
 
-### Phase 7.1 — Ingestion + create + notify (Workflow 1)
-- [ ] Confirm the **card→account map** (is `*4008` BBVA PEN? separate USD card?).
-- [ ] Create the **Merchant Map** Notion DB (raw bank string → friendly name).
-- [ ] Parse BBVA fields from the full `text` body (not `snippet` — truncates ~200 chars).
-- [ ] Capture an **Interbank** sample email + write its parser.
-- [ ] Map card last4 → Notion account → look up merchant in Merchant Map (flag if unknown).
-- [ ] Create the Expense in Notion with **Category EMPTY**.
-- [ ] Send Telegram notification with **inline-button category suggestions** (Gemini picks
-  3–4 likely from the 44 categories + "Ver todas" + "🗑 Borrar").
+1. **Identify** (Phase 7) — read the email, produce a structured expense. Pure read.
+2. **Add** (Phase 5 — Add Expense, shared block) — write the expense to Notion. Pure write.
+3. **Telegram** (Phase 8) — the interactive glue: present → ask/confirm → call Add. Last,
+   because it orchestrates the other two.
 
-### Phase 7.2 — Interactive callback + learning (Workflow 2)
-- [ ] Branch the existing bot's Telegram Trigger on `callback_query` vs text (NOT a 2nd bot).
-- [ ] Button tap → **update the Expense's Category** in Notion.
-- [ ] New-merchant learning: ask what it is → save to the Merchant Map.
+**Flow model — confirm-before-write** (replaces the old "Flow C" auto-save). Nothing enters
+Notion without the user's OK. The bot presents the identified expense and either asks for
+what's missing (usually the category — context-dependent) or, if it knows everything, just
+asks to confirm. One adaptive flow with a smart branch.
+
+## Phase 7 — Identify expenses (email parsing) 🔨 (resumed 2026-07-06)
+
+Read a bank email → output a structured expense `{merchant_raw, amount, currency, date,
+time, card_last4}`. No Notion writes here.
+
+**Blockers — data the user must provide:**
+- [ ] **Card→account map:** confirm `*4008` = BBVA **PEN**; is there a separate USD card?
+      (All 130 sampled consumptions were `*4008` / PEN.)
+- [ ] **Interbank sample email** to write its parser + enumerate its email types.
+
+**Build steps:**
+- [ ] Filter Gmail to **card-consumption emails only** — `from:procesos@bbva.com.pe` alone
+      is NOT enough (see finding below). Match subject `Has realizado un consumo con tu
+      tarjeta BBVA`.
+- [ ] Parse BBVA consumption fields from the body (`Comercio / Monto / Moneda / Fecha /
+      Hora / *NNNN`). Format is regular across samples.
+- [ ] Create the **Merchant Map** Notion DB (raw bank string → friendly name). Needed
+      because BBVA truncates the merchant to ~18 chars ("BOBOCHA OPEN PLAZ").
+- [ ] Decide where the card→account map lives (leaning: Notion config, editable without
+      touching n8n — TBD vs code constant).
+- [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
+- [ ] Write the Interbank parser (once a sample is captured).
+
+> **FINDING (2026-07-07) — BBVA sends 16+ email types, only 1 is a card consumption.**
+> Surveyed 300 emails (7 May–7 Jul) from `procesos@bbva.com.pe`: 130 "Has realizado un
+> consumo con tu tarjeta BBVA" (the one we want), plus Transf. Interbancaria (46), PLIN
+> (37+19 QR), Pago Tarjetas propias (21), T-Cambio (14), pago a comercios con QR (7),
+> transf. ctas propias/terceros, Apartados, estados de cuenta, etc. **⇒ MUST filter by
+> subject, not just sender**, or transfers/exchanges would be logged as expenses.
+>
+> **Deferred to a later sub-phase (documented, out of scope for now):**
+> - **"pago a comercios con QR"** (7) — a real expense but different format; parse later.
+> - **"La compra… ha sido anulada"** — a reversal; if the expense was already added, it
+>   should be reverted. For now just notify, don't auto-delete.
+>
+> **Gotcha:** the Gmail OAuth token (`Gmail account`, `4rFJWwULha1qyy86`) expires/revokes
+> and needs periodic manual **Reconnect** in n8n (hit this 2026-07-07). Redirect URI must be
+> `https://n8n.netosnos.dev/rest/oauth2-credential/callback`.
+
+## Phase 8 — Telegram bot (interactive: notify / ask / confirm) 🔮
+
+The interactive layer. Presents the identified expense, collects confirmation + any missing
+field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns new merchants.
+
+- [ ] **Spike — learn Telegram bot mechanics first** (isolated experiment, don't touch the
+      Router): send a message with an inline keyboard, receive the `callback_query`, edit
+      the message in place (`editMessageText`), answer with `answerCallbackQuery`.
+- [ ] Design the notification: "💳 Consumo detectado: `<merchant>` · S/`<amt>` · `<account>`"
+      with buttons — category suggestions (Gemini picks 3–4 of the 44 + "Ver todas") +
+      `[✅ Confirmar]` / `[🗑 Descartar]`.
+- [ ] **Category suggestion skill** (LLM judgment, skill + template in GitHub). Context-
+      dependent categories (`Family`/`Friends`/`Partner`/`Special Ocations`) must be asked;
+      some (Fuel→`Fuel`, Spotify→`Spotify`) are inferable → suggest with confidence.
+- [ ] **Pending state:** hold the identified expense between notify and tap (callback
+      arrives as a separate event). Map `message_id → pending expense` via a small store
+      (`callback_data` has a 64-byte limit).
+- [ ] On confirm → call **Add Expense**; edit the message to "✅ Categorizado como `<cat>`".
+- [ ] Branch the existing bot's Telegram Trigger on `callback_query` vs text (NOT a 2nd
+      bot — one webhook per bot).
+- [ ] **New-merchant learning:** if the merchant was unknown, ask its friendly name → save
+      to the Merchant Map so it's recognized next time.
 
 > **Existing workflow:** `Finance Bot - Email Expenses` (`nZxRev5elRCHJIy7`, inactive) —
-> currently just **Gmail Trigger1** (poll 1 min, `simple:true`, `q: from:procesos@bbva.com.pe
-> OR from:servicioalcliente@netinterbank.com.pe`) → a Set placeholder. Gmail OAuth2
-> credential `Gmail account` (`4rFJWwULha1qyy86`) connected and working.
->
-> **Why category MUST be asked, not inferred:** it's context-dependent — the same restaurant
-> is `Family` / `Friends` / `Partner` / `Special Ocations` depending on who you're with. Some
-> ARE inferable (Fuel→`Fuel`, Spotify→`Spotify`), so Gemini suggests with confidence there.
->
-> **BBVA format (parser-ready):** subject "Has realizado un consumo con tu tarjeta BBVA";
-> body `Comercio: <merchant>  Monto: <amount>  Moneda: PEN  Fecha: DD/MM/YYYY
-> Hora: HH:MM:SS  ...tarjeta terminada en *NNNN`. Example: HUMO CLUB PARRILLA / 239.00 /
-> PEN / 07/06/2026 / 16:10:22 / *4008. **Interbank format not yet captured.**
->
-> **Telegram callback constraint:** callbacks hit the SAME bot as the Router (one webhook
-> per bot). `callback_data` 64-byte limit → map `message_id → expense pageId` via a small
-> store instead of stuffing both ids in.
->
-> **New structures needed:** Merchant Map DB, a card→account config, and an
-> extraction/suggestion skill page (skill + template in GitHub, per project convention).
+> currently just **Gmail Trigger1** → a Set placeholder. This becomes the Phase 7 identify
+> workflow; the Telegram callback handling integrates into the existing bot (Phase 8).
