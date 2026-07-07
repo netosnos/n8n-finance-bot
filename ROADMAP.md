@@ -99,12 +99,17 @@ Modularize the rest of the monolith into reusable sub-workflows, same role as
 ## Gmail Expense Ingestion — the big picture (Phases 5, 7, 8)
 
 Auto-detect bank notification emails, identify the expense, and — **only after the user
-confirms via Telegram** — add it to Notion. Split into three pillars, built in this order:
+confirms via Telegram** — add it to Notion. Three pillars:
 
-1. **Identify** (Phase 7) — read the email, produce a structured expense. Pure read.
-2. **Add** (Phase 5 — Add Expense, shared block) — write the expense to Notion. Pure write.
-3. **Telegram** (Phase 8) — the interactive glue: present → ask/confirm → call Add. Last,
-   because it orchestrates the other two.
+- **Identify** (Phase 7) — read the email, produce a structured expense. Pure read.
+- **Add** (Phase 5 — Add Expense, shared block) — write the expense to Notion. Pure write.
+- **Telegram** (Phase 8) — the interactive glue: present → ask/confirm → call Add.
+
+**Build order = 5 → 7 → 8.** Add Expense (5) and Identify (7) are independent (neither
+depends on the other); both must precede Telegram (8), which orchestrates them. Start with
+**Phase 5**: it has no blockers (builds against the known Notion schema), while Phase 7 is
+waiting on the card→account map + an Interbank sample. (Runtime order differs: the write
+fires last, after the Telegram confirm.)
 
 **Flow model — confirm-before-write** (replaces the old "Flow C" auto-save). Nothing enters
 Notion without the user's OK. The bot presents the identified expense and either asks for
