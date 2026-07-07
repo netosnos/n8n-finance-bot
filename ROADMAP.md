@@ -74,7 +74,7 @@ Build plan for the modular architecture. Design lives in
 Modularize the rest of the monolith into reusable sub-workflows, same role as
 `Get Financial Data` / `Send Telegram` — build once, reuse.
 
-- [ ] **Add Expense** sub-workflow: given a complete expense (merchant/amount/currency/
+- [x] **Add Expense** sub-workflow: given a complete expense (merchant/amount/currency/
   date/account/category) → create the Notion Expense; return `{page_id, url}`. Validate
   in isolation.
 - [ ] **Add Income** sub-workflow: analogous, for incomes.
@@ -85,6 +85,16 @@ Modularize the rest of the monolith into reusable sub-workflows, same role as
 > **Add Expense first** within this phase; it's a dependency of Phase 8. (Build order ≠
 > runtime order: at runtime the write fires last, but the button needs the block to exist.)
 > Add Income and Router aren't needed by the ingestion feature but stay in Phase 5's scope.
+>
+> **✅ Add Expense v2 built (`1eOnQek7DHqealBa`, inactive) — 2026-07-07.** Pure write block,
+> 4 nodes: Execute Workflow Trigger (`passthrough`) → Code: Build Notion Body → HTTP: Create
+> Expense → Code: Return. **Input contract:** `{name, amount, currency:'PEN'|'USD', date
+> (ISO, optional→defaults to now Lima), account_id, category_id}`. **Output:** `{page_id,
+> url}`. No Gemini, no Telegram — the NL-extraction + confirmation UX stay in the caller
+> (Router v2 / Phase 8). Lifts the v1 create body verbatim (icon `arrow-down_gray`, PEN DB
+> `273868c7-8890-801f-b858-c15148f3e7fc` / USD DB `273868c7-8890-8090-8400-f85e05c55cd6`,
+> Notion cred `wxBq7Vmt6DFteDxh`). Validated end-to-end (test expense created with all
+> fields correct, then trashed). v1 Add Expense (`Q1yg4XgqUUH6alxO`) left untouched.
 
 ## Phase 6 — Cutover ✅
 - [x] Activate the Monthly v2, deactivate the monolithic Monthly v1 (done 2026-06-30).
