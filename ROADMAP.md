@@ -139,9 +139,13 @@ time, card_last4}`. No Notion writes here.
       its parser (build it once a real consumption email is captured).
 
 **Build steps (BBVA card consumption first, then the rest):**
-- [ ] Filter Gmail to the wanted email types by **subject** — `from:procesos@bbva.com.pe`
-      alone is NOT enough (16+ types, see finding). Start with `Has realizado un consumo con
-      tu tarjeta BBVA`.
+- [x] Filter Gmail to the wanted email types by **subject** — `from:procesos@bbva.com.pe`
+      alone is NOT enough (16+ types, see finding). **Built 2026-07-09:** broad Gmail Trigger
+      → **`Route by Subject` Switch** (extensible, one output per type) → parser. First rule
+      routes "Has realizado un consumo con tu tarjeta BBVA" → `Parse BBVA Consumption`; all
+      other types fall through and are dropped. Validated: 20 mixed BBVA emails → exactly 9
+      consumptions reached the parser (all `ok:true`), the rest dropped. Live flow now
+      3 nodes: Gmail Trigger1 → Route by Subject → Parse BBVA Consumption (inactive).
 - [x] Parse BBVA consumption fields from the body (`Comercio / Monto / Moneda / Fecha /
       Hora / *NNNN`). **Built + validated 2026-07-08** against 6 real emails — outputs
       `{ok, bank, type, merchant_raw, amount, currency, date (ISO Lima), card_last4,
