@@ -142,8 +142,11 @@ time, card_last4}`. No Notion writes here.
 - [ ] Filter Gmail to the wanted email types by **subject** — `from:procesos@bbva.com.pe`
       alone is NOT enough (16+ types, see finding). Start with `Has realizado un consumo con
       tu tarjeta BBVA`.
-- [ ] Parse BBVA consumption fields from the body (`Comercio / Monto / Moneda / Fecha /
-      Hora / *NNNN`). Format is regular across samples.
+- [x] Parse BBVA consumption fields from the body (`Comercio / Monto / Moneda / Fecha /
+      Hora / *NNNN`). **Built + validated 2026-07-08** against 6 real emails — outputs
+      `{ok, bank, type, merchant_raw, amount, currency, date (ISO Lima), card_last4,
+      account_id, unmapped_card}`. Parses from `snippet` (BBVA emails are HTML-only, no
+      text/plain part; the Gmail Trigger's `simple:true` snippet holds every field).
 - [ ] Create the **Merchant Map** Notion DB (raw bank string → friendly name). Needed
       because BBVA truncates the merchant to ~18 chars ("BOBOCHA OPEN PLAZ").
 - [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
