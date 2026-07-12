@@ -160,7 +160,13 @@ time, card_last4}`. No Notion writes here.
       ⚠️ Nuance: some PLINs are to himself (self-transfer, e.g. "a Ernesto A Angulo J") vs to
       others — decide handling (category is chosen in Telegram/Phase 8, so a self-transfer
       would just get the `Transfer` category; confirm before building this parser).
-- [ ] Write the Interbank parser (once a sample email is captured).
+- [x] Write the Interbank parser. **Built + validated 2026-07-12** vs 5 real emails. Format
+      differs from BBVA (`Tarjeta: ****NNN Comercio: X Monto: S/. Y Fecha: DD/MM/YYYY Hora:
+      HH:MM AM/PM`) — parser strips `S/.` and converts AM/PM→24h. Cards `*087`/`*5069` →
+      Fixed Expenses. Routed via a 2nd Switch rule (`From` contains `netinterbank.com.pe`
+      AND `Subject` contains `Tarjeta` → covers Amex/Visa consumption + recurring, excludes
+      bills/PLIN/transfers). Live flow now 4 nodes: Gmail Trigger1 → Route by Subject →
+      {Parse BBVA Consumption (case 0), Parse Interbank Consumption (case 1)}.
 
 > **SCOPE (updated 2026-07-07):** in scope for BBVA = card consumption **+ PLIN transfers
 > + QR payments** (all → Variable Expenses, per user). USD is **out of scope for now** —
