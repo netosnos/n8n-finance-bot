@@ -151,8 +151,11 @@ time, card_last4}`. No Notion writes here.
       `{ok, bank, type, merchant_raw, amount, currency, date (ISO Lima), card_last4,
       account_id, unmapped_card}`. Parses from `snippet` (BBVA emails are HTML-only, no
       text/plain part; the Gmail Trigger's `simple:true` snippet holds every field).
-- [ ] Create the **Merchant Map** Notion DB (raw bank string → friendly name). Needed
-      because BBVA truncates the merchant to ~18 chars ("BOBOCHA OPEN PLAZ").
+- [x] Create the **Merchant Map** Notion DB (raw bank string → friendly name). **Created
+      2026-07-12** inside the Finance Bot page — schema `Raw` (title) + `Friendly`
+      (rich_text). IDs in `project-reference.local.md`. (Chose a DB over a repo `.md` /
+      table-block so the bot can query by `Raw` and write learned merchants as new rows.)
+      Still to wire: the lookup step (query `Raw` → `Friendly`; flag unknowns).
 - [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
       code constant); leaning Notion so it's editable without touching n8n.
 - [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
