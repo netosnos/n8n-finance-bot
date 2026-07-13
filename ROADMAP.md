@@ -155,7 +155,16 @@ time, card_last4}`. No Notion writes here.
       2026-07-12** inside the Finance Bot page — schema `Raw` (title) + `Friendly`
       (rich_text). IDs in `project-reference.local.md`. (Chose a DB over a repo `.md` /
       table-block so the bot can query by `Raw` and write learned merchants as new rows.)
-      Still to wire: the lookup step (query `Raw` → `Friendly`; flag unknowns).
+- [x] **Populated the Merchant Map — 60 rows** (2026-07-13). Harvested distinct
+      `merchant_raw` from ~150 real consumption emails (BBVA + Interbank) via the fixed
+      parsers, applied proposed friendly names, bulk-inserted with n8n HTTP. Keys derived
+      from the fixed parser so they match runtime output exactly. ~7 ambiguous ones left
+      with `Friendly = Raw` for the user to finish in Notion. **Also fixed an Interbank
+      parser bug:** old emails (pre ~Jun 2026) prepend a stray `4` glued to the merchant
+      (`4SMARTFIT`); parser now strips a leading `4` when followed by a letter.
+- [ ] Wire the **Merchant Lookup**: after each parser, query the Merchant Map by `Raw` →
+      set `Friendly`; if not found, keep raw + flag `merchant_new` (Phase 8 learning). Both
+      parser branches converge here → also consolidates Phase 7's structured output.
 - [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
       code constant); leaning Notion so it's editable without touching n8n.
 - [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
