@@ -155,16 +155,25 @@ time, card_last4}`. No Notion writes here.
       2026-07-12** inside the Finance Bot page — schema `Raw` (title) + `Friendly`
       (rich_text). IDs in `project-reference.local.md`. (Chose a DB over a repo `.md` /
       table-block so the bot can query by `Raw` and write learned merchants as new rows.)
-- [x] **Populated the Merchant Map — 60 rows** (2026-07-13). Harvested distinct
+- [x] **Populated the Merchant Map — 53 rows** (2026-07-13). Harvested distinct
       `merchant_raw` from ~150 real consumption emails (BBVA + Interbank) via the fixed
       parsers, applied proposed friendly names, bulk-inserted with n8n HTTP. Keys derived
-      from the fixed parser so they match runtime output exactly. ~7 ambiguous ones left
-      with `Friendly = Raw` for the user to finish in Notion. **Also fixed an Interbank
+      from the fixed parser so they match runtime output exactly. The ~7 ambiguous ones
+      (SCO HUANCAYO, RODRIGUEZ DIAZ D, INVERSIONES URBANISTICAS, etc.) were **intentionally
+      dropped** by the user (couldn't identify them) → they correctly surface as
+      `merchant_new` so Telegram asks + learns them later. **Also fixed an Interbank
       parser bug:** old emails (pre ~Jun 2026) prepend a stray `4` glued to the merchant
       (`4SMARTFIT`); parser now strips a leading `4` when followed by a letter.
-- [ ] Wire the **Merchant Lookup**: after each parser, query the Merchant Map by `Raw` →
-      set `Friendly`; if not found, keep raw + flag `merchant_new` (Phase 8 learning). Both
-      parser branches converge here → also consolidates Phase 7's structured output.
+- [x] Wire the **Merchant Lookup** — **DONE + validated end-to-end 2026-07-13.** Both parser
+      branches converge on `Consolidate Parse Output` (single anchor) → `Query Merchant Map`
+      (HTTP `POST /v1/databases/{id}/query`, `notionApi` cred, filter `Raw equals
+      {{merchant_raw}}`) → `Apply Merchant Map` (Code: merges lookup back by index, adds
+      `merchant_friendly` — Friendly or falls back to `merchant_raw` — and `merchant_new`
+      bool). Consolidates both parser branches into one Phase-7 output. Validated via temp
+      webhook+mock harness (exec 428): hit→friendly/new:false, miss→raw/new:true; real
+      HTTP→Notion call succeeded. Harness removed; workflow back to inactive. Live flow now
+      7 nodes: Gmail Trigger1 → Route by Subject → {Parse BBVA, Parse Interbank} →
+      Consolidate Parse Output → Query Merchant Map → Apply Merchant Map.
 - [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
       code constant); leaning Notion so it's editable without touching n8n.
 - [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
