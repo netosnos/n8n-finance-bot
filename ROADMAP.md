@@ -174,9 +174,12 @@ time, card_last4}`. No Notion writes here.
       HTTP→Notion call succeeded. Harness removed; workflow back to inactive. Live flow now
       7 nodes: Gmail Trigger1 → Route by Subject → {Parse BBVA, Parse Interbank} →
       Consolidate Parse Output → Query Merchant Map → Apply Merchant Map.
-- [ ] Store the card→account map (see local ref) — decide runtime home (Notion config vs
-      code constant); leaning Notion so it's editable without touching n8n.
-- [ ] Map card last4 → Notion account; look up merchant in Merchant Map (flag if unknown).
+- [x] Store the card→account map (see local ref) — **DONE as code constants** inside each
+      parser (`CARD_TO_ACCOUNT`): BBVA `*4008`/`*1218` → Variable Expenses, Interbank
+      `*087`/`*5069` → Fixed Expenses. Chose code over Notion config (few, stable cards);
+      revisit → Notion only if card count grows or a USD card is added.
+- [x] Map card last4 → Notion account (parsers' `CARD_TO_ACCOUNT` → `account_id`); look up
+      merchant in Merchant Map + flag if unknown (**= the Merchant Lookup done 2026-07-13**).
 - [ ] **Add BBVA PLIN + QR-payment parsers** (user wants these logged → Variable Expenses).
       ⚠️ Nuance: some PLINs are to himself (self-transfer, e.g. "a Ernesto A Angulo J") vs to
       others — decide handling (category is chosen in Telegram/Phase 8, so a self-transfer
