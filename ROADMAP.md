@@ -214,23 +214,37 @@ time, card_last4}`. No Notion writes here.
 The interactive layer. Presents the identified expense, collects confirmation + any missing
 field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns new merchants.
 
-- [ ] **Spike — learn Telegram bot mechanics first** (isolated experiment, don't touch the
-      Router): send a message with an inline keyboard, receive the `callback_query`, edit
-      the message in place (`editMessageText`), answer with `answerCallbackQuery`.
-- [ ] Design the notification: "💳 Consumo detectado: `<merchant>` · S/`<amt>` · `<account>`"
-      with buttons — category suggestions (Gemini picks 3–4 of the 44 + "Ver todas") +
-      `[✅ Confirmar]` / `[🗑 Descartar]`.
-- [ ] **Category suggestion skill** (LLM judgment, skill + template in GitHub). Context-
-      dependent categories (`Family`/`Friends`/`Partner`/`Special Ocations`) must be asked;
-      some (Fuel→`Fuel`, Spotify→`Spotify`) are inferable → suggest with confidence.
-- [ ] **Pending state:** hold the identified expense between notify and tap (callback
-      arrives as a separate event). Map `message_id → pending expense` via a small store
-      (`callback_data` has a 64-byte limit).
-- [ ] On confirm → call **Add Expense**; edit the message to "✅ Categorizado como `<cat>`".
-- [ ] Branch the existing bot's Telegram Trigger on `callback_query` vs text (NOT a 2nd
-      bot — one webhook per bot).
-- [ ] **New-merchant learning:** if the merchant was unknown, ask its friendly name → save
-      to the Merchant Map so it's recognized next time.
+- [x] ~~Spike — learn Telegram bot mechanics~~ **Skipped** — validated mechanics directly on
+      the real bot (single-user, low risk), incrementally + reversibly instead.
+- [x] Design the notification: card is **English** (bot speaks English) —
+      "💳 Expense detected / `<merchant>` 🆕 · S/`<amt>` / `<account>` · `<bank>` / Which category?"
+      with **5 category recommendations + `📋 View all` + `🗑 Dismiss`**. Built in `nZxRev5elRCHJIy7`
+      notify side (Prepare Card → Telegram Send Card → Build Pending Body → HTTP Insert Pending).
+      DONE + validated 2026-07-14. (Gemini replaces the 5 fixed picks later.)
+- [ ] **Category suggestion skill** (LLM judgment, skill + template in GitHub) — **NEXT big step.**
+      Context-dependent categories (`Family`/`Friends`/`Partner`/`Special Ocations`) must be asked;
+      some (Fuel→`Fuel`, Spotify→`Spotify`) are inferable → suggest with confidence. Replaces the
+      5 deterministic buttons with Gemini's picks.
+- [x] **Pending state:** Notion **"Pending Expenses" DB** (n8n Data Tables API not exposed on the
+      instance). `Message ID` (title) = lookup key. Row created on notify, archived on resolve.
+      DONE 2026-07-13.
+- [x] On confirm → call **Add Expense v2**; edit the message to "✅ Logged as `<cat>` — …".
+      DONE via `Expense Callback` sub-workflow (`GjN4yoC2v9S5CxZU`). category + discard branches
+      built; **`View all` (45-cat keyboard) branch still TODO.**
+- [x] Branch the existing bot's Telegram Trigger on `callback_query` vs text (NOT a 2nd bot).
+      Router (`2PsOEqcvG0J7mBGioAJJ_`) now listens to `callback_query` + `IF: Is Callback` delegates
+      taps to `Execute: Expense Callback`; text path unchanged. **Full cycle validated end-to-end
+      via a REAL user tap 2026-07-15 (exec 438): tap Gym → expense written → card edited → row archived.**
+- [ ] **New-merchant learning:** if the merchant was unknown (`merchant_new`), ask its friendly name →
+      save to the Merchant Map so it's recognized next time. (Not built yet.)
+- [ ] **`View all` branch** in Expense Callback: on `exp:all`, editMessageReplyMarkup with all 45
+      categories to pick from.
+- [ ] **Harden edge:** tapping a card whose pending row is already archived → Add Expense v2 throws
+      on missing fields; add an IF-after-Build-Expense-Input guard that edits "⚠️ expired" instead.
+
+> **Now ACTIVE (published):** Router, `Expense Callback` (`GjN4yoC2v9S5CxZU`), Add Expense v2
+> (`1eOnQek7DHqealBa`). Identify workflow `nZxRev5elRCHJIy7` stays INACTIVE until we go live on
+> real emails (its Gmail Trigger must not poll yet).
 
 > **Existing workflow:** `Finance Bot - Email Expenses` (`nZxRev5elRCHJIy7`, inactive) —
 > currently just **Gmail Trigger1** → a Set placeholder. This becomes the Phase 7 identify
