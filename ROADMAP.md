@@ -221,10 +221,10 @@ field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns ne
       with **5 category recommendations + `📋 View all` + `🗑 Dismiss`**. Built in `nZxRev5elRCHJIy7`
       notify side (Prepare Card → Telegram Send Card → Build Pending Body → HTTP Insert Pending).
       DONE + validated 2026-07-14. (Gemini replaces the 5 fixed picks later.)
-- [ ] **Category suggestion skill** (LLM judgment, skill + template in GitHub) — **NEXT big step.**
-      Context-dependent categories (`Family`/`Friends`/`Partner`/`Special Ocations`) must be asked;
-      some (Fuel→`Fuel`, Spotify→`Spotify`) are inferable → suggest with confidence. Replaces the
-      5 deterministic buttons with Gemini's picks.
+- [x] **Category suggestion (Gemini)** — DONE 2026-07-15. `AI: Suggest Categories`
+      (`gemini-3.1-flash-lite`) returns exactly 5 picks; the 5 card buttons are fixed slots with
+      expression text/callback_data (solves the dynamic-keyboard limit). Prompt currently INLINE
+      (TODO: externalize to a GitHub skill per convention).
 - [x] **Pending state:** Notion **"Pending Expenses" DB** (n8n Data Tables API not exposed on the
       instance). `Message ID` (title) = lookup key. Row created on notify, archived on resolve.
       DONE 2026-07-13.
@@ -235,12 +235,19 @@ field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns ne
       Router (`2PsOEqcvG0J7mBGioAJJ_`) now listens to `callback_query` + `IF: Is Callback` delegates
       taps to `Execute: Expense Callback`; text path unchanged. **Full cycle validated end-to-end
       via a REAL user tap 2026-07-15 (exec 438): tap Gym → expense written → card edited → row archived.**
+- [x] **`View all` / `View less` toggle** — DONE 2026-07-16. `View all` = flat list of ALL live
+      categories; `View less` collapses back to the 5 Gemini picks (stored in Pending DB `Picks`).
+      Emojis removed except 🗑 Dismiss; `appendAttribution:false` everywhere.
+- [x] **Fully dynamic categories** — DONE + validated 2026-07-16. Categories fetched live from Notion
+      at runtime (Gemini allowed-list, `name→id`, `Logged as` name, and the View-all keyboard). **Add a
+      category in Notion → it appears in the bot, zero manual work.** View-all keyboard built via HTTP to
+      the Telegram Bot API (native node can't do variable-length keyboards); bot token in a `Bot Config`
+      Set node (**TODO: migrate to `$env.TELEGRAM_BOT_TOKEN` for better security**).
 - [ ] **New-merchant learning:** if the merchant was unknown (`merchant_new`), ask its friendly name →
       save to the Merchant Map so it's recognized next time. (Not built yet.)
-- [ ] **`View all` branch** in Expense Callback: on `exp:all`, editMessageReplyMarkup with all 45
-      categories to pick from.
 - [ ] **Harden edge:** tapping a card whose pending row is already archived → Add Expense v2 throws
-      on missing fields; add an IF-after-Build-Expense-Input guard that edits "⚠️ expired" instead.
+      on missing fields; add an IF-after-Build-Expense-Input guard that edits "expired" instead.
+- [ ] **Externalize the Gemini prompt** to a GitHub skill (per project convention; currently inline).
 
 > **Now ACTIVE (published):** Router, `Expense Callback` (`GjN4yoC2v9S5CxZU`), Add Expense v2
 > (`1eOnQek7DHqealBa`). Identify workflow `nZxRev5elRCHJIy7` stays INACTIVE until we go live on
