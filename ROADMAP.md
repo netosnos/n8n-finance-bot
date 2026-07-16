@@ -243,8 +243,10 @@ field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns ne
       category in Notion → it appears in the bot, zero manual work.** View-all keyboard built via HTTP to
       the Telegram Bot API (native node can't do variable-length keyboards); bot token in a `Bot Config`
       Set node (**TODO: migrate to `$env.TELEGRAM_BOT_TOKEN` for better security**).
-- [ ] **New-merchant learning:** if the merchant was unknown (`merchant_new`), ask its friendly name →
-      save to the Merchant Map so it's recognized next time. (Not built yet.)
+- [x] **New-merchant learning** — DONE + validated 2026-07-16 (Option C: log now, learn + rename on reply).
+      On confirm with `merchant_new`, the bot asks for a friendly name via Telegram ForceReply; the reply
+      (detected by the Router via `reply_to_message`) → `Finance Bot - Learn Merchant` (`ZYRfCg3nGoAxfYz3`)
+      saves `Raw→Friendly` to the Merchant Map AND renames the just-created expense. Validated end-to-end.
 - [ ] **Harden edge:** tapping a card whose pending row is already archived → Add Expense v2 throws
       on missing fields; add an IF-after-Build-Expense-Input guard that edits "expired" instead.
 - [ ] **Externalize the Gemini prompt** to a GitHub skill (per project convention; currently inline).
