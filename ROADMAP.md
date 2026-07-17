@@ -249,7 +249,9 @@ field (category), and on confirm **calls Add Expense (Phase 5)**. Also learns ne
       saves `Raw→Friendly` to the Merchant Map AND renames the just-created expense. Validated end-to-end.
 - [ ] **Harden edge:** tapping a card whose pending row is already archived → Add Expense v2 throws
       on missing fields; add an IF-after-Build-Expense-Input guard that edits "expired" instead.
-- [ ] **Externalize the Gemini prompt** to a GitHub skill (per project convention; currently inline).
+- [x] **Externalize the Gemini prompt** to a GitHub skill — DONE 2026-07-17.
+      `skills/category-suggestion.md`, fetched at runtime (raw URL) + live category list/purchase
+      appended; inline fallback if the fetch fails. Validated end-to-end.
 
 > **Now ACTIVE (published):** Router, `Expense Callback` (`GjN4yoC2v9S5CxZU`), Add Expense v2
 > (`1eOnQek7DHqealBa`). Identify workflow `nZxRev5elRCHJIy7` stays INACTIVE until we go live on
